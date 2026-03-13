@@ -7,18 +7,21 @@ test.use({ storageState: 'auth/auth.json' });
 for (const searchItem of data.searchCases) {
   test(`TC_02: Search Employee - ${searchItem.desc}`, async ({ page }) => {
     const pimPage = new PimPage(page);
-    await pimPage.goto();
-    await pimPage.searchEmployee(searchItem.name);
     
-    await page.waitForLoadState('networkidle');
+    await pimPage.goto();
+    
+await pimPage.searchEmployee(searchItem.name);
 
-    if (searchItem.name === "Angela" || searchItem.name === "Linda") {
+await page.waitForLoadState('networkidle');
 
-      await expect(page.locator('.oxd-table-card').first()).toBeVisible({ timeout: 10000 });
-        await expect(page.locator('.oxd-table-body')).toContainText(searchItem.name);
-    } else {
-
-      await expect(page.getByText('No Records Found')).toBeVisible();
-    }
+if (searchItem.name === "Angela" || searchItem.name === "Linda") {
+    const firstRow = page.locator('.oxd-table-card').first();
+    
+    await expect(firstRow).toContainText(searchItem.name, { timeout: 15000 });
+} else {
+  
+    const noRecordMsg = page.locator('span').filter({ hasText: 'No Records Found' }).first();
+    await expect(noRecordMsg).toBeVisible({ timeout: 10000 });
+}
   });
 }

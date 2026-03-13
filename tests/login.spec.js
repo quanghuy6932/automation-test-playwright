@@ -14,7 +14,7 @@ test.describe('Chức năng Đăng nhập', () => {
       await loginPage.login(loginCase.user, loginCase.pass);
 
       if (loginCase.shouldPass) {
-        await expect(page).toHaveURL(/dashboard/);
+        await expect(page).toHaveURL(/dashboard/, { timeout: 10000 });
       } else {
         await expect(page.getByText('Invalid credentials')).toBeVisible();
       }

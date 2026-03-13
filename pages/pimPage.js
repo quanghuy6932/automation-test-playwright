@@ -9,7 +9,8 @@ export class PimPage {
 
   async goto() {
   await this.page.goto('https://opensource-demo.orangehrmlive.com/web/index.php/pim/viewEmployeeList', { 
-    waitUntil: 'networkidle' 
+    waitUntil: 'load',
+    timeout: 45000 
   });
 }
 
