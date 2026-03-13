@@ -1,15 +1,23 @@
-// tests/login.spec.js
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../pages/loginPage';
 import data from '../data/testData.json';
 
-test('TC_01: Đăng nhập thành công với tài khoản Admin', async ({ page }) => {
-  const loginPage = new LoginPage(page);
+test.use({ storageState: { cookies: [], origins: [] } });
 
-  await loginPage.goto();
-  await loginPage.login(data.login.username, data.login.password);
+test.describe('Chức năng Đăng nhập', () => {
+  for (const loginCase of data.loginCases) {
+    test(`TC_Login: ${loginCase.desc}`, async ({ page }) => {
+      const loginPage = new LoginPage(page);
+      
+      await loginPage.goto();
 
-  await expect(page).toHaveURL(/dashboard/);
-  
-  await page.context().storageState({ path: 'auth/auth.json' });
+      await loginPage.login(loginCase.user, loginCase.pass);
+
+      if (loginCase.shouldPass) {
+        await expect(page).toHaveURL(/dashboard/);
+      } else {
+        await expect(page.getByText('Invalid credentials')).toBeVisible();
+      }
+    });
+  }
 });

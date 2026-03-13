@@ -8,8 +8,10 @@ export class PimPage {
   }
 
   async goto() {
-    await this.page.goto('https://opensource-demo.orangehrmlive.com/web/index.php/pim/viewEmployeeList');
-  }
+  await this.page.goto('https://opensource-demo.orangehrmlive.com/web/index.php/pim/viewEmployeeList', { 
+    waitUntil: 'networkidle' 
+  });
+}
 
   async searchEmployee(name) {
     await this.employeeNameInput.fill(name);

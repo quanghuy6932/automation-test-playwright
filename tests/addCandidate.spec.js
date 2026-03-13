@@ -4,17 +4,24 @@ import data from '../data/testData.json';
 
 test.use({ storageState: 'auth/auth.json' });
 
-test('TC_03: Thêm mới ứng viên thành công từ dữ liệu JSON', async ({ page }) => {
-  const recruitmentPage = new RecruitmentPage(page);
+test.describe('Chức năng Thêm ứng viên - DDT', () => {
+  for (const person of data.candidateCases) {
+    test(`TC_Add: ${person.desc}`, async ({ page }) => {
+      const recruitmentPage = new RecruitmentPage(page);
+      await recruitmentPage.goto();
+      
+      await recruitmentPage.addCandidate(person.fname, person.mname, person.lname, person.email);
 
-  await recruitmentPage.goto();
+      if (person.expected === "success") {
 
-  await recruitmentPage.addCandidate(
-    data.candidate.firstName,
-    data.candidate.middleName,
-    data.candidate.lastName,
-    data.candidate.email
-  );
+        await expect(page.getByText('Success', { exact: true })).toBeVisible();
+      } else if (person.expected === "error_required") {
 
-  await expect(page.getByText('Success', { exact: true })).toBeVisible();
+        await expect(page.locator('span.oxd-input-field-error-message').first()).toHaveText('Required');
+      } else if (person.expected === "error_email") {
+        
+        await expect(page.getByText('Expected format: admin@example.com')).toBeVisible();
+      }
+    });
+  }
 });

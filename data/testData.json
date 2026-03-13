@@ -1,16 +1,16 @@
 {
-  "login": {
-    "username": "Admin",
-    "password": "admin123",
-    "url": "https://opensource-demo.orangehrmlive.com"
-  },
-  "employeeSearch": {
-    "name": "Angela"
-  },
-  "candidate": {
-    "firstName": "Huy",
-    "middleName": "Quang",
-    "lastName": "Hoang",
-    "email": "huy123@example.com"
-  }
+  "loginCases": [
+  { "desc": "Login sai pass", "user": "Admin", "pass": "wrong", "shouldPass": false },
+  { "desc": "Login thành công", "user": "Admin", "pass": "admin123", "shouldPass": true }
+],
+  "searchCases": [
+    { "name": "Angela", "desc": "Tìm theo tên Angela" },
+    { "name": "Linda", "desc": "Tìm theo tên Linda" },
+    { "name": "Huy", "desc": "Tìm tên không tồn tại" }
+  ],
+  "candidateCases": [
+  { "desc": "Thêm thành công", "fname": "Huy", "mname": "Quang", "lname": "Hoang", "email": "huy@test.com", "expected": "success" },
+  { "desc": "Để trống First Name", "fname": "", "mname": "Quang", "lname": "Hoang", "email": "huy@test.com", "expected": "error_required" },
+  { "desc": "Sai định dạng Email", "fname": "Huy", "mname": "Quang", "lname": "Hoang", "email": "email_sai_dinh_dang", "expected": "error_email" }
+]
 }

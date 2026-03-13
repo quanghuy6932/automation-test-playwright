@@ -1,81 +1,69 @@
 // @ts-check
 import { defineConfig, devices } from '@playwright/test';
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
-
-/**
- * @see https://playwright.dev/docs/test-configuration
- */
 export default defineConfig({
   testDir: './tests',
-  /* Run tests in files in parallel */
-  fullyParallel: true,
-  /* Fail the build on CI if you accidentally left test.only in the source code. */
+  /* Chạy các test song song */
+  fullyParallel: false, // Để false để các module chạy tuần tự cho ổn định
+  /* Thời gian tối đa cho 1 test case (tăng lên 60s để tránh Timeout do mạng) */
+  timeout: 60000,
+  
   forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
-  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
-  use: {
-    /* Base URL to use in actions like `await page.goto('')`. */
-    // baseURL: 'http://localhost:3000',
+  
+  /* Giới hạn số lượng trình duyệt mở cùng lúc để máy không bị treo */
+  workers: 1, 
 
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+  /* Báo cáo kết quả dạng HTML */
+  reporter: [['html', { open: 'always' }], ['list']],
+
+  use: {
+    /* Base URL giúp bạn chỉ cần viết page.goto('/') */
+    baseURL: 'https://opensource-demo.orangehrmlive.com',
+    
+    /* Cấu hình thời gian chờ cho các hành động Click, Fill và Load trang */
+    actionTimeout: 15000,
+    navigationTimeout: 30000,
+
+    /* Quay video và chụp ảnh khi test thất bại để dễ debug */
+    trace: 'retain-on-failure',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+    
+    /* Chế độ hiện trình duyệt hay không */
+    headless: true, 
   },
 
-  /* Configure projects for major browsers */
+  /* Cấu hình các dự án chạy (Projects) */
   projects: [
+    // 1. Bước Setup: Chạy file auth.setup.js để đăng nhập và lưu session
+    {
+      name: 'setup',
+      testMatch: /auth\.setup\.js/,
+    },
+
+    // 2. Chạy trên trình duyệt Chrome sử dụng Session đã lưu
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { 
+        ...devices['Desktop Chrome'],
+        // Nạp session từ file auth.json vào trình duyệt
+        storageState: 'auth/auth.json', 
+      },
+      // Chỉ chạy project này sau khi 'setup' đã thành công
+      dependencies: ['setup'],
     },
 
+    // Bạn có thể mở lại Firefox/Webkit nếu muốn, nhớ thêm storageState và dependencies cho chúng
+    /*
     {
       name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      use: { 
+        ...devices['Desktop Firefox'],
+        storageState: 'auth/auth.json' 
+      },
+      dependencies: ['setup'],
     },
-
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
-
-    /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
+    */
   ],
-
-  /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://localhost:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
 });
-
